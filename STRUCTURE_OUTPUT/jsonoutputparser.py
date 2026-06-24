@@ -17,6 +17,6 @@ template1=PromptTemplate(
     partial_variables={'format_instruction':parser.get_format_instructions()}
 )
 
-chain=template1 | chat_model | parser
-result=chain.invoke(dict())
-print(result)
+result=chat_model.invoke(template1)
+final_result=parser.parse(result.content)
+print(final_result)

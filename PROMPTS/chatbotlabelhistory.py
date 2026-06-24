@@ -1,7 +1,7 @@
 from langchain_core.messages import AIMessage,SystemMessage,HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
-
+#chat label is used to identify the types of messages send by whom AI,Huma,System
 load_dotenv()
 
 model=ChatGoogleGenerativeAI(model='gemini-3.1-flash-lite')
