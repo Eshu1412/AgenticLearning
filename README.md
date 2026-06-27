@@ -43,6 +43,10 @@ This directory covers text embeddings generation and mathematical vector similar
 ### 5. [STRUCTURE_OUTPUT/](./STRUCTURE_OUTPUT)
 This directory focuses on schema enforcement, output parsing, and prompt chaining to guarantee structured machine-readable responses.
 
+*   **[ChainPydanticOutputParser.py](./STRUCTURE_OUTPUT/ChainPydanticOutputParser.py)**: Demonstrates how to use `PydanticOutputParser` inside a LangChain LCEL chain with `ChatGoogleGenerativeAI`. It defines a `Student` Pydantic model and automatically parses the LLM output into this structured model using the parser at the end of the chain.
+    > **⚠️ Key Learnings & Common Pitfalls:**
+    > - When initializing `PydanticOutputParser`, you **must** use the `pydantic_object` parameter (e.g., `PydanticOutputParser(pydantic_object=Student)`), **not** `object`.
+    > - Because the parser is at the end of the LCEL chain, `chain.invoke()` returns a parsed **Pydantic object** (not an `AIMessage`). Accessing `.text` on it will throw `AttributeError`. Use `print(result)` directly or `.model_dump()` to convert it to a dictionary.
 *   **[PydanticOutputParser.py](./STRUCTURE_OUTPUT/PydanticOutputParser.py)**: Defines a Pydantic `BaseModel` schema (`Person`) and uses `PydanticOutputParser` to generate format instructions, prompt the model, and parse the output into structured Pydantic objects.
 *   **[StructureOutputParser.py](./STRUCTURE_OUTPUT/StructureOutputParser.py)**: Implements structured output extraction using the legacy `ResponseSchema` and `StructuredOutputParser` classes to format and parse LLM responses.
 *   **[gemini_stroutputparser.py](./STRUCTURE_OUTPUT/gemini_stroutputparser.py)**: Demonstrates sequential prompt chaining using LCEL (`template1 | model | StrOutputParser | template2 | model | StrOutputParser`), where the output of the first model is summarized by the second.
@@ -54,12 +58,18 @@ This directory focuses on schema enforcement, output parsing, and prompt chainin
 *   **[with_structure_output.py](./STRUCTURE_OUTPUT/with_structure_output.py)**: Uses `with_structured_output()` with native Python `TypedDict` and `Annotated` parameters to extract structured review parameters from a long product review.
 *   **[with_structure_pydantic.py](./STRUCTURE_OUTPUT/with_structure_pydantic.py)**: Extracts the same product review details but uses a robust Pydantic `BaseModel` schema with value validation constraints (e.g., rating range limits).
 
-### 6. [api/](./api)
+### 6. [CHAINS/](./CHAINS)
+This directory demonstrates how to build and compose LangChain Expression Language (LCEL) chains — the core mechanism for connecting prompts, models, and parsers into a single pipeline.
+
+*   **[simple_chain.py](./CHAINS/simple_chain.py)**: A basic LCEL chain that connects a `PromptTemplate` → `ChatGoogleGenerativeAI` → `StrOutputParser` using the pipe (`|`) operator. Also demonstrates `chain.get_graph().print_ascii()` to visualize the chain's execution graph in the terminal.
+*   **[sequntial_chain.py](./CHAINS/sequntial_chain.py)**: Demonstrates a **sequential (multi-step) chain** where the output of one LLM call feeds into the next prompt. The chain is: `prompt1 | model | parser | prompt2 | model | parser`. First generates a detailed report, then extracts the top 5 crucial points from it.
+
+### 7. [api/](./api)
 This directory focuses on exposing LangChain models as web services.
 
 *   **[app.py](./api/app.py)**: Implements a minimal REST API server using the FastAPI framework to prepare for exposing LangChain logic over HTTP.
 
-### 7. Root Files
+### 8. Root Files
 *   **[main.py](./main.py)**: A simple entrypoint script that prints the currently installed `langchain` package version to verify environment setup.
 
 ---
@@ -71,6 +81,7 @@ This directory focuses on exposing LangChain models as web services.
 3.  **Text Embeddings & Semantic Search**: Converting text to mathematical vectors and computing cosine similarity using scikit-learn to perform document retrieval.
 4.  **Structured JSON Extraction**: Enforcing schemas on model outputs using Pydantic, TypedDict, `StructuredOutputParser`, and the `with_structured_output` API.
 5.  **Sequential Prompt Chaining**: Chaining multiple LLM calls together using LangChain Expression Language (LCEL) so that one model's output feeds the next.
+6.  **LCEL Chains (Simple & Sequential)**: Building composable pipelines using the `|` operator to connect prompts → models → parsers, and visualizing chain graphs with `get_graph().print_ascii()`.
 
 ---
 
