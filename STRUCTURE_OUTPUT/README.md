@@ -7,6 +7,10 @@ This directory contains various scripts demonstrating how to parse and structure
 ### 1. `ChainPydanticOutputParser.py`
 Demonstrates how to use `PydanticOutputParser` inside a LangChain LCEL (LangChain Expression Language) chain with `ChatGoogleGenerativeAI`. It defines a `Student` Pydantic model and automatically parses the LLM output into this structured model using the parser at the end of the chain.
 
+**Key Learnings & Common Pitfalls:**
+- When initializing `PydanticOutputParser`, you must use the `pydantic_object` parameter (e.g., `PydanticOutputParser(pydantic_object=Student)`), not `object`.
+- Because the parser is at the end of the LCEL chain, calling `chain.invoke()` directly returns the parsed Pydantic object (not an `AIMessage` or a raw string). Therefore, attempting to access `.text` on the result will cause an `AttributeError`. Instead, you can print the object directly or use `.model_dump()` to convert it to a dictionary.
+
 ### 2. `PydanticOutputParser.py`
 Shows how to use `PydanticOutputParser` to parse output for a `Person` schema using `ChatGoogleGenerativeAI`. Unlike the chained version, this script manually invokes the prompt template and the LLM, then relies on the parser to format the instructions in the prompt.
 
