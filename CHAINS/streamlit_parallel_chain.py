@@ -1,3 +1,4 @@
+import base64
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 import streamlit as st
@@ -37,6 +38,20 @@ parallel_merge=RunnableParallel(
 )
 merge_chain=prompt3 | model2 | parser
 chain=parallel_merge | merge_chain
+
+def draw_mermaid_graph(mermaid_code):
+    try:
+        # Base64 encode the Mermaid diagram code
+        graph_bytes = mermaid_code.encode("utf-8")
+        base64_bytes = base64.urlsafe_b64encode(graph_bytes)
+        base64_string = base64_bytes.decode("ascii")
+        # Generate the mermaid.ink URL
+        url = f"https://mermaid.ink/img/{base64_string}+?theme=dark&bgColor=1b1b1f"
+        st.image(url, caption="LangChain Execution Graph", use_container_width=True)
+    except Exception as e:
+        # Fallback to ASCII representation if rendering fails
+        st.code(chain.get_graph().draw_ascii())
+
 if st.button('Generate'):
     if input_text:
         with st.spinner('Generating Notes and Quiz...'):
@@ -44,9 +59,10 @@ if st.button('Generate'):
             st.success('Notes and Quiz Generated Successfully!')
             st.write(result)
             st.subheader('Graph')
-            st.code(chain.get_graph().draw_ascii())
+            draw_mermaid_graph(chain.get_graph().draw_mermaid())
     else:
         st.error('Please enter a topic')
+
 
 
         
