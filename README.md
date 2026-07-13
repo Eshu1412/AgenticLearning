@@ -69,10 +69,15 @@ This directory demonstrates how to build and compose LangChain Expression Langua
 *   **[streamlit_parallel_chain.py](./CHAINS/streamlit_parallel_chain.py)**: A **Streamlit web application** that wraps the parallel chain pattern in an interactive UI. Users enter a topic, and the app concurrently generates notes and MCQ quiz questions using two Gemini models, merges them, and displays the result. Also renders the chain's execution graph as a Mermaid diagram using `mermaid.ink`.
 
 ### 7. [RUNNABLES/](./RUNNABLES)
-This directory explores the **Runnable** primitives (`RunnableSequence`, `RunnableParallel`) as a lower-level, explicit alternative to LCEL's pipe (`|`) operator for composing chains.
+This directory explores the **Runnable** primitives (`RunnableSequence`, `RunnableParallel`, `RunnableBranch`) as a lower-level, explicit alternative to LCEL's pipe (`|`) operator for composing chains.
 
 *   **[sequential_runnable.py](./RUNNABLES/sequential_runnable.py)**: Builds a sequential pipeline using the `RunnableSequence` class explicitly (instead of the `|` operator). The chain generates a joke about a given topic, then translates it into Hinglish using a second prompt. Also demonstrates `chain.get_graph().print_ascii()` to visualize the chain's execution graph.
 *   **[runnable_parallel.py](./RUNNABLES/runnable_parallel.py)**: Demonstrates **multi-model parallel execution** using `RunnableParallel` with `RunnableSequence`. Runs two sub-chains concurrently — one generates a tweet using `ChatGoogleGenerativeAI` (Gemini) and the other generates a Facebook post using `ChatHuggingFace` (Llama 3 via Hugging Face API) — for the same topic.
+*   **[runnable_branch.py](./RUNNABLES/runnable_branch.py)**: Demonstrates **conditional branching** using `RunnableBranch` with `RunnableSequence`. A `report` chain first generates a full report on a given topic; then `chain_branch` checks if the output exceeds 300 words — if so, it routes to a summarization chain, otherwise it passes the text through unchanged using `RunnablePassthrough`.
+    > **⚠️ Key Learnings & Common Pitfalls:**
+    > - When chaining `RunnableBranch` after a chain that outputs a plain **string**, the branch condition lambda receives that string directly. Ensure your branch sub-chains accept the correct input type.
+    > - If the branch routes to a `PromptTemplate`, you **must** wrap the string input in a dict matching the template's `input_variables` (e.g., `lambda x: {'text': x}`) **before** piping into the prompt — passing a raw string causes a malformed prompt and the model may return an empty response.
+    > - Always store `result.invoke(...)` in a variable and `print` that variable — printing the chain object itself only shows the chain's internal structure, not the model output.
 
 ### 8. [api/](./api)
 This directory focuses on exposing LangChain models as web services.
