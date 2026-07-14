@@ -88,13 +88,15 @@ This directory covers loading external documents (plain text and PDFs) into Lang
     > - Always use `os.path.join(os.path.dirname(__file__), 'filename')` for file paths so the script works regardless of the working directory it is run from.
     > - Avoid stray unrelated imports (e.g., `from torch.cuda import temperature`) — they cause `ModuleNotFoundError` and add unnecessary dependencies.
     > - `print` without parentheses is a silent no-op — always use `print(result)` to display output.
-*   **[pdf_loader.py](./DOCUMENT_LOADERS/pdf_loader.py)**: Loads a multi-page PDF (`Tushar_Maurya_CV.pdf`) using `PyPDFLoader`, joins all pages into a single string, and sends the content through an LLM chain to extract structured candidate details (Name, Preferred Role, College, Resume Score, Frontend Skills, Backend Skills).
+*   **[pdf_loader.py](./DOCUMENT_LOADERS/pdf_loader.py)**: Loads a multi-page PDF (`Tushar_Maurya_CV.pdf`) using `PyPDFLoader`, joins all pages into a single string, and passes the full content through an LLM chain acting as a **strict technical resume screener**. The prompt uses a detailed 5-category scoring rubric (Technical Depth, Skill-Role Fit, Evidence Quality, Clarity, Red Flags) and outputs structured candidate details including Name, Preferred Role, College, Resume Score, Score Breakdown, Frontend Skills, Backend Skills, Database Skills, and a Concerns field for unverifiable claims or buzzword stuffing.
     > **⚠️ Key Learnings & Common Pitfalls:**
     > - `PyPDFLoader()` requires a `file_path` argument — calling it with no arguments raises a `TypeError`.
     > - Always call `load_dotenv()` **before** instantiating any model so environment variables (e.g., `GOOGLE_API_KEY`) are available.
-    > - Avoid duplicate loader instantiation — loading the file once and joining all pages with `'\n'.join([doc.page_content for doc in docs])` ensures multi-page PDFs are fully processed.
+    > - Avoid duplicate loader instantiation — load the file once and join all pages with `'\n'.join([doc.page_content for doc in docs])` to ensure multi-page PDFs are fully processed.
     > - `PromptTemplate` must always include `input_variables=[...]` matching the `{placeholders}` used in the template string.
+    > - Prompt design matters: a vague prompt yields generic output; a rubric-driven prompt with explicit scoring rules, constraints (e.g., "do NOT score above 85 without verifiable proof"), and a strict output format produces far more useful, consistent results.
 *   **[sample_doc.txt](./DOCUMENT_LOADERS/sample_doc.txt)**: A plain-text sample document used as input for `text_loaders.py`.
+
 
 ### 9. [api/](./api)
 This directory focuses on exposing LangChain models as web services.
