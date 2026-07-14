@@ -1,33 +1,26 @@
-# LangChain Core
+# ── Core LangChain ──────────────────────────────────────────────────
 langchain
 langchain-core
 langchain-community
 
-# Google Gemini Integration
+# ── Google Gemini (used by streamlit_resume_loader.py) ───────────────
 langchain-google-genai
 google-generativeai
 
-# PDF Loading (required by PyPDFLoader)
+# ── PDF Loading (PyPDFLoader) ────────────────────────────────────────
 pypdf
 
-# Streamlit UI
+# ── Streamlit UI ─────────────────────────────────────────────────────
 streamlit
 
-# OpenAI Integration
-langchain-openai
-openai
-
-# Anthropic Integration
-langchain-anthropic
-
-# Hugging Face Integration
-langchain-huggingface
-transformers
-huggingface-hub
-
-# Environment Variable Management
+# ── Environment Variables ────────────────────────────────────────────
 python-dotenv
 
-# Machine Learning Utilities
+# ── ML Utilities (embeddings / similarity scripts) ───────────────────
 numpy
 scikit-learn
+
+# ── Other integrations (local use only, kept for completeness) ────────
+langchain-openai
+openai
+langchain-anthropic
